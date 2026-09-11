@@ -1,0 +1,26 @@
+{
+  "name": "dentalflow",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multi-tenant Dental Clinic Management SaaS",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:backend": "npm run dev --workspace=@dentalflow/backend",
+    "dev:frontend": "npm run dev --workspace=@dentalflow/frontend",
+    "dev:api": "npm run dev --workspace=@dentalflow/backend",
+    "dev:web": "npm run dev --workspace=@dentalflow/frontend",
+    "build": "npm run build --workspaces --if-present",
+    "build:frontend": "npm run build --workspace=@dentalflow/frontend",
+    "build:web": "npm run build --workspace=@dentalflow/frontend",
+    "test": "npm run test --workspaces --if-present",
+    "test:backend": "npm run test --workspace=@dentalflow/backend",
+    "test:api": "npm run test --workspace=@dentalflow/backend",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {}
+}
