@@ -22,6 +22,16 @@ const Permission = {
   // Staff & Roles
   STAFF_READ: 'staff:read',
   STAFF_MANAGE: 'staff:manage',
+  ROLES_READ: 'roles:read',
+  ROLES_MANAGE: 'roles:manage',
+
+  // Dentists
+  DENTISTS_READ: 'dentists:read',
+  DENTISTS_MANAGE: 'dentists:manage',
+
+  // Services
+  SERVICES_READ: 'services:read',
+  SERVICES_MANAGE: 'services:manage',
 
   // Clinic Settings
   CLINIC_MANAGE: 'clinic:manage',
@@ -53,6 +63,12 @@ const ROLE_PERMISSIONS = {
     Permission.BILLING_WRITE,
     Permission.STAFF_READ,
     Permission.STAFF_MANAGE,
+    Permission.ROLES_READ,
+    Permission.ROLES_MANAGE,
+    Permission.DENTISTS_READ,
+    Permission.DENTISTS_MANAGE,
+    Permission.SERVICES_READ,
+    Permission.SERVICES_MANAGE,
     Permission.CLINIC_MANAGE,
     Permission.AUDIT_READ,
     Permission.TEST_RECORDS_READ,
@@ -102,7 +118,14 @@ const ROLE_PERMISSIONS = {
     Permission.APPOINTMENTS_READ,
     Permission.TEST_RECORDS_READ,
   ],
+
+  [UserRole.STAFF]: [
+    Permission.PATIENTS_READ,
+    Permission.APPOINTMENTS_READ,
+  ],
 };
+
+ROLE_PERMISSIONS[UserRole.CLINIC_ADMIN] = ROLE_PERMISSIONS[UserRole.CLINIC_OWNER];
 
 module.exports = {
   Permission,

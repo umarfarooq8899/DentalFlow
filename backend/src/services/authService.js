@@ -177,4 +177,100 @@ async function logout({ refreshToken: incomingRefreshToken }) {
   await RefreshToken.findOneAndUpdate({ token: jti }, { revokedAt: new Date() });
 }
 
-module.exports = { register, login, refreshTokens, logout };
+/**
+ * Request password reset token.
+ * Does not reveal whether email exists (opaque generic response).
+ */
+async function forgotPassword({ email, clinicSlug }) {
+  const genericMessage = 'If an account with that email exists, password reset instructions have been sent.';
+  if (!email) {
+    return { success: true, message: genericMessage };
+  }
+
+  const cleanEmail = email.toLowerCase().trim();
+  let query = { email: cleanEmail, isActive: true };
+
+  if (clinicSlug) {
+    const clinic = await Clinic.findOne({ slug: clinicSlug.toLowerCase().trim(), isActive: true });
+    if (!clinic) {
+      return { success: true, message: genericMessage };
+    }
+    query.clinicId = clinic._id;
+  }
+
+  const user = await User.findOne(query);
+  if (!user) {
+    return { success: true, message: genericMessage };
+  }
+
+  // Generate secure token valid for 1 hour
+  const token = generateSecureToken(32);
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+  const PasswordResetToken = require('../models/PasswordResetToken');
+  // Invalidate any existing tokens for this user
+  await PasswordResetToken.deleteMany({ userId: user._id });
+
+  await PasswordResetToken.create({
+    clinicId: user.clinicId,
+    userId: user._id,
+    token,
+    expiresAt,
+  });
+
+  return {
+    success: true,
+    message: genericMessage,
+    // Included for testing purposes
+    _testToken: token,
+  };
+}
+
+/**
+ * Reset password using a valid token.
+ */
+async function resetPassword({ token, newPassword }) {
+  if (!token || !newPassword) {
+    throw AppError.badRequest('Token and new password are required.');
+  }
+
+  if (typeof newPassword !== 'string' || newPassword.length < 8) {
+    throw AppError.badRequest('Password must be at least 8 characters long.');
+  }
+
+  const PasswordResetToken = require('../models/PasswordResetToken');
+  const resetTokenDoc = await PasswordResetToken.findOne({ token });
+
+  if (!resetTokenDoc || !resetTokenDoc.isValid()) {
+    throw AppError.badRequest('Password reset token is invalid or has expired.', 'INVALID_TOKEN');
+  }
+
+  const user = await User.findById(resetTokenDoc.userId);
+  if (!user || !user.isActive) {
+    throw AppError.badRequest('User not found or inactive.');
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  // Mark token used
+  resetTokenDoc.usedAt = new Date();
+  await resetTokenDoc.save();
+
+  // Revoke active refresh tokens
+  await RefreshToken.updateMany(
+    { userId: user._id, revokedAt: null },
+    { $set: { revokedAt: new Date() } }
+  );
+
+  return { success: true, message: 'Password has been reset successfully.' };
+}
+
+module.exports = {
+  register,
+  login,
+  refreshTokens,
+  logout,
+  forgotPassword,
+  resetPassword,
+};
