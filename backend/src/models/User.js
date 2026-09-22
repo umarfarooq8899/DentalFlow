@@ -4,7 +4,18 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const env = require('../config/env');
 
-const ROLES = ['super_admin', 'clinic_admin', 'dentist', 'receptionist', 'patient'];
+const ROLES = [
+  'super_admin',
+  'superadmin',
+  'clinic_admin',
+  'clinic_owner',
+  'dentist',
+  'hygienist',
+  'receptionist',
+  'billing_staff',
+  'staff',
+  'patient',
+];
 
 const userSchema = new mongoose.Schema(
   {
@@ -25,14 +36,26 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 8,
       select: false,
+      alias: 'passwordHash',
     },
-    firstName: { type: String, required: true, trim: true },
-    lastName: { type: String, required: true, trim: true },
+    name: { type: String, trim: true },
+    firstName: { type: String, trim: true, default: '' },
+    lastName: { type: String, trim: true, default: '' },
     role: {
       type: String,
       enum: ROLES,
       required: true,
       default: 'receptionist',
+    },
+    roleId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Role',
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'invited', 'suspended'],
+      default: 'active',
     },
     permissions: [{ type: String }],
     isActive: { type: Boolean, default: true },
@@ -59,8 +82,24 @@ userSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
-// Hash password before save
+// Hash password and sync name & status before save
 userSchema.pre('save', async function (next) {
+  // Sync name with firstName/lastName
+  if (this.name && (!this.firstName || !this.lastName)) {
+    const parts = this.name.trim().split(/\s+/);
+    if (!this.firstName) this.firstName = parts[0] || '';
+    if (!this.lastName) this.lastName = parts.slice(1).join(' ') || '';
+  } else if ((this.firstName || this.lastName) && !this.name) {
+    this.name = `${this.firstName || ''} ${this.lastName || ''}`.trim();
+  }
+
+  // Sync status and isActive
+  if (this.isModified('status')) {
+    this.isActive = this.status === 'active';
+  } else if (this.isModified('isActive')) {
+    this.status = this.isActive ? 'active' : 'inactive';
+  }
+
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, env.BCRYPT_ROUNDS);
   next();
