@@ -86,12 +86,43 @@ async function logoutHandler(req, res, next) {
   }
 }
 
-async function meHandler(req, res, next) {
+async function forgotPasswordHandler(req, res, next) {
   try {
-    res.status(200).json({ success: true, data: { user: req.user } });
+    const { email, clinicSlug } = req.body;
+    const result = await authService.forgotPassword({ email, clinicSlug });
+
+    const responseData = {
+      success: true,
+      message: result.message,
+    };
+
+    // Expose reset token in test environment to allow verification without email mocking
+    if (process.env.NODE_ENV === 'test' && result._testToken) {
+      responseData._testToken = result._testToken;
+    }
+
+    res.status(200).json(responseData);
   } catch (err) {
     next(err);
   }
 }
 
-module.exports = { registerHandler, loginHandler, refreshHandler, logoutHandler, meHandler };
+async function resetPasswordHandler(req, res, next) {
+  try {
+    const { token, newPassword } = req.body;
+    const result = await authService.resetPassword({ token, newPassword });
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {
+  registerHandler,
+  loginHandler,
+  refreshHandler,
+  logoutHandler,
+  meHandler,
+  forgotPasswordHandler,
+  resetPasswordHandler,
+};
