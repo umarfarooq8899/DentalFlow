@@ -86,6 +86,13 @@ async function logoutHandler(req, res, next) {
   }
 }
 
+function meHandler(req, res) {
+  res.status(200).json({
+    success: true,
+    data: { user: req.user },
+  });
+}
+
 async function forgotPasswordHandler(req, res, next) {
   try {
     const { email, clinicSlug } = req.body;
