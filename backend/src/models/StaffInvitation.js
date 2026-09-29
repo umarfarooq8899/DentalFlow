@@ -68,7 +68,6 @@ const staffInvitationSchema = new mongoose.Schema(
 );
 
 staffInvitationSchema.index({ clinicId: 1, email: 1 });
-staffInvitationSchema.index({ token: 1 });
 
 /**
  * Check if the invitation is active (pending and not expired).
