@@ -14,11 +14,22 @@ async function registerHandler(req, res, next) {
       lastName,
     });
 
+    const { accessToken, refreshToken } = await authService.login({
+      email,
+      clinicSlug,
+      password,
+      userAgent: req.headers['user-agent'],
+      ip: req.ip,
+    });
+
     res.status(201).json({
       success: true,
       data: {
+        accessToken,
+        refreshToken,
+        tokens: { accessToken, refreshToken },
         clinic: { id: clinic._id, name: clinic.name, slug: clinic.slug },
-        user: { id: user._id, email: user.email, role: user.role },
+        user: { id: user._id, email: user.email, role: user.role, firstName: user.firstName, lastName: user.lastName },
       },
     });
   } catch (err) {
@@ -42,6 +53,7 @@ async function loginHandler(req, res, next) {
       data: {
         accessToken,
         refreshToken,
+        tokens: { accessToken, refreshToken },
         user: {
           id: user._id,
           email: user.email,

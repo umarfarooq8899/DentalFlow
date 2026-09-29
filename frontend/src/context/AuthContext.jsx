@@ -44,8 +44,13 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     const res = await apiClient.post('/auth/login', credentials);
-    const { user: userData, clinic: clinicData, tokens } = res.data;
-    apiClient.setTokens(tokens.accessToken, tokens.refreshToken);
+    const { user: userData, clinic: clinicData } = res.data || {};
+    const accessToken = res.data?.tokens?.accessToken || res.data?.accessToken;
+    const refreshToken = res.data?.tokens?.refreshToken || res.data?.refreshToken;
+
+    if (accessToken && refreshToken) {
+      apiClient.setTokens(accessToken, refreshToken);
+    }
     setUser(userData);
     setClinic(clinicData);
     return res.data;
@@ -53,8 +58,13 @@ export function AuthProvider({ children }) {
 
   const register = async (payload) => {
     const res = await apiClient.post('/auth/register', payload);
-    const { user: userData, clinic: clinicData, tokens } = res.data;
-    apiClient.setTokens(tokens.accessToken, tokens.refreshToken);
+    const { user: userData, clinic: clinicData } = res.data || {};
+    const accessToken = res.data?.tokens?.accessToken || res.data?.accessToken;
+    const refreshToken = res.data?.tokens?.refreshToken || res.data?.refreshToken;
+
+    if (accessToken && refreshToken) {
+      apiClient.setTokens(accessToken, refreshToken);
+    }
     setUser(userData);
     setClinic(clinicData);
     return res.data;
