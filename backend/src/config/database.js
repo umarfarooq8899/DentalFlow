@@ -1,7 +1,15 @@
 'use strict';
 
+const dns = require('dns');
 const mongoose = require('mongoose');
 const env = require('./env');
+
+// Ensure SRV records for MongoDB Atlas resolve cleanly on Windows
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch {
+  // Ignore if not permitted
+}
 
 let isConnected = false;
 
