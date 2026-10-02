@@ -1,5 +1,6 @@
 'use strict';
 
+const { ROLE_PERMISSIONS } = require('@dentalflow/shared');
 const authService = require('../services/authService');
 
 async function registerHandler(req, res, next) {
@@ -22,6 +23,9 @@ async function registerHandler(req, res, next) {
       ip: req.ip,
     });
 
+    const rolePermissions = ROLE_PERMISSIONS[user.role] || [];
+    const effectivePermissions = Array.from(new Set([...(user.permissions || []), ...rolePermissions]));
+
     res.status(201).json({
       success: true,
       data: {
@@ -29,7 +33,15 @@ async function registerHandler(req, res, next) {
         refreshToken,
         tokens: { accessToken, refreshToken },
         clinic: { id: clinic._id, name: clinic.name, slug: clinic.slug },
-        user: { id: user._id, email: user.email, role: user.role, firstName: user.firstName, lastName: user.lastName },
+        user: {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          permissions: user.permissions || [],
+          effectivePermissions,
+        },
       },
     });
   } catch (err) {
@@ -48,6 +60,9 @@ async function loginHandler(req, res, next) {
       ip: req.ip,
     });
 
+    const rolePermissions = ROLE_PERMISSIONS[user.role] || [];
+    const effectivePermissions = Array.from(new Set([...(user.permissions || []), ...rolePermissions]));
+
     res.status(200).json({
       success: true,
       data: {
@@ -60,6 +75,8 @@ async function loginHandler(req, res, next) {
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
+          permissions: user.permissions || [],
+          effectivePermissions,
         },
         clinic: { id: clinic._id, name: clinic.name, slug: clinic.slug },
       },
@@ -99,9 +116,17 @@ async function logoutHandler(req, res, next) {
 }
 
 function meHandler(req, res) {
+  const rolePermissions = ROLE_PERMISSIONS[req.user.role] || [];
+  const effectivePermissions = Array.from(new Set([...(req.user.permissions || []), ...rolePermissions]));
+
   res.status(200).json({
     success: true,
-    data: { user: req.user },
+    data: {
+      user: {
+        ...req.user,
+        effectivePermissions,
+      },
+    },
   });
 }
 

@@ -48,12 +48,12 @@ function requireRole(requiredRole) {
 }
 
 /**
- * Middleware factory: require user to have a specific permission string.
+ * Middleware factory: require user to have at least one of the specified permission strings.
  * Supports wildcard '*', clinic_admin/clinic_owner/super_admin pass-through,
  * and role-based default permissions from shared module.
- * @param {string} permission
+ * @param {...string} permissions
  */
-function requirePermission(permission) {
+function requirePermission(...permissions) {
   return (req, res, next) => {
     if (!req.user) {
       return next(AppError.unauthorized());
@@ -66,18 +66,20 @@ function requirePermission(permission) {
     }
 
     const userPermissions = req.user.permissions || [];
-    if (userPermissions.includes('*') || userPermissions.includes(permission)) {
+    if (userPermissions.includes('*')) {
       return next();
     }
 
-    // Check inherited role permissions
     const inherited = ROLE_PERMISSIONS[role] || [];
-    if (inherited.includes(permission)) {
+    const effective = new Set([...userPermissions, ...inherited]);
+
+    const hasPermission = permissions.some((p) => effective.has(p));
+    if (hasPermission) {
       return next();
     }
 
     return next(
-      AppError.forbidden(`Missing required permission: '${permission}'.`)
+      AppError.forbidden(`Missing required permission: '${permissions.join("' or '")}'.`)
     );
   };
 }
