@@ -1,6 +1,7 @@
 const { UserRole, ALL_ROLES } = require('./roles');
 const { Permission, ALL_PERMISSIONS, ROLE_PERMISSIONS } = require('./permissions');
 const { ErrorCode } = require('./errors');
+const dental = require('./dental');
 
 module.exports = {
   UserRole,
@@ -9,4 +10,5 @@ module.exports = {
   ALL_PERMISSIONS,
   ROLE_PERMISSIONS,
   ErrorCode,
+  ...dental,
 };

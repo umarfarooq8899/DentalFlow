@@ -14,6 +14,10 @@ const dentalRecordRoutes = require('./dentalRecordRoutes');
 const consentRoutes = require('./consentRoutes');
 const documentRoutes = require('./documentRoutes');
 const appointmentRoutes = require('./appointmentRoutes');
+const dentalChartRoutes = require('./dentalChartRoutes');
+const treatmentPlanRoutes = require('./treatmentPlanRoutes');
+const invoiceRoutes = require('./invoiceRoutes');
+const paymentRoutes = require('./paymentRoutes');
 
 const router = Router();
 
@@ -26,6 +30,10 @@ router.use('/dentists', dentistRoutes);
 router.use('/services', serviceRoutes);
 router.use('/patients', patientRoutes);
 router.use('/dental-records', dentalRecordRoutes);
+router.use('/dental', dentalChartRoutes);
+router.use('/treatment-plans', treatmentPlanRoutes);
+router.use('/invoices', invoiceRoutes);
+router.use('/payments', paymentRoutes);
 router.use('/consents', consentRoutes);
 router.use('/documents', documentRoutes);
 router.use('/appointments', appointmentRoutes);

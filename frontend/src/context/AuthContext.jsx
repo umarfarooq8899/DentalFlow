@@ -85,8 +85,13 @@ export function AuthProvider({ children }) {
 
   const hasPermission = (permission) => {
     if (!user) return false;
-    if (user.role === 'superadmin') return true;
-    return user.effectivePermissions?.includes(permission) ?? false;
+    const adminRoles = ['superadmin', 'super_admin', 'clinic_admin', 'clinic_owner'];
+    if (adminRoles.includes(user.role)) return true;
+
+    const userPerms = user.effectivePermissions || user.permissions || [];
+    if (userPerms.includes('*') || userPerms.includes(permission)) return true;
+
+    return false;
   };
 
   const value = {
