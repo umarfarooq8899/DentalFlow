@@ -20,6 +20,8 @@ const invoiceRoutes = require('./invoiceRoutes');
 const paymentRoutes = require('./paymentRoutes');
 const notificationRoutes = require('./notificationRoutes');
 const recallRoutes = require('./recallRoutes');
+const leadRoutes = require('./leadRoutes');
+const conversationRoutes = require('./conversationRoutes');
 
 const router = Router();
 
@@ -38,6 +40,8 @@ router.use('/invoices', invoiceRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/recalls', recallRoutes);
+router.use('/leads', leadRoutes);
+router.use('/conversations', conversationRoutes);
 router.use('/consents', consentRoutes);
 router.use('/documents', documentRoutes);
 router.use('/appointments', appointmentRoutes);

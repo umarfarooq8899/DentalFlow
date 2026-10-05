@@ -45,6 +45,15 @@ const Permission = {
   // Audit Logs
   AUDIT_READ: 'audit:read',
 
+  // CRM — Leads
+  LEADS_READ: 'leads:read',
+  LEADS_WRITE: 'leads:write',
+  LEADS_MANAGE: 'leads:manage',
+
+  // CRM — Conversations & Messages
+  CONVERSATIONS_READ: 'conversations:read',
+  CONVERSATIONS_WRITE: 'conversations:write',
+
   // Test / System
   TEST_RECORDS_READ: 'test_records:read',
   TEST_RECORDS_WRITE: 'test_records:write',
@@ -81,6 +90,11 @@ const ROLE_PERMISSIONS = {
     Permission.SERVICES_MANAGE,
     Permission.CLINIC_MANAGE,
     Permission.AUDIT_READ,
+    Permission.LEADS_READ,
+    Permission.LEADS_WRITE,
+    Permission.LEADS_MANAGE,
+    Permission.CONVERSATIONS_READ,
+    Permission.CONVERSATIONS_WRITE,
     Permission.TEST_RECORDS_READ,
     Permission.TEST_RECORDS_WRITE,
     Permission.TEST_RECORDS_DELETE,
@@ -100,6 +114,8 @@ const ROLE_PERMISSIONS = {
     Permission.CHARTS_WRITE,
     Permission.BILLING_READ,
     Permission.STAFF_READ,
+    Permission.LEADS_READ,
+    Permission.CONVERSATIONS_READ,
     Permission.TEST_RECORDS_READ,
     Permission.TEST_RECORDS_WRITE,
   ],
@@ -125,6 +141,10 @@ const ROLE_PERMISSIONS = {
     Permission.RECALLS_READ,
     Permission.RECALLS_WRITE,
     Permission.BILLING_READ,
+    Permission.LEADS_READ,
+    Permission.LEADS_WRITE,
+    Permission.CONVERSATIONS_READ,
+    Permission.CONVERSATIONS_WRITE,
     Permission.TEST_RECORDS_READ,
     Permission.TEST_RECORDS_WRITE,
   ],
