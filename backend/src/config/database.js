@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const env = require('./env');
 const Invoice = require('../models/Invoice');
 const Payment = require('../models/Payment');
+const Notification = require('../models/Notification');
+const Recall = require('../models/Recall');
 
 // Ensure SRV records for MongoDB Atlas resolve cleanly on Windows
 try {
@@ -38,7 +40,12 @@ async function connectDatabase() {
     serverSelectionTimeoutMS: 5000,
   });
 
-  await Promise.all([Invoice.createIndexes(), Payment.createIndexes()]);
+  await Promise.all([
+    Invoice.createIndexes(),
+    Payment.createIndexes(),
+    Notification.createIndexes(),
+    Recall.createIndexes(),
+  ]);
 }
 
 async function disconnectDatabase() {

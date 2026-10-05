@@ -20,6 +20,11 @@ services:
       - '6379:6379'
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   api:
     build:
@@ -40,8 +45,10 @@ services:
       JWT_ACCESS_EXPIRATION: 15m
       JWT_REFRESH_EXPIRATION_DAYS: 7
     depends_on:
-      - mongodb
-      - redis
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_healthy
 
   web:
     build:
