@@ -7,10 +7,25 @@ const Service = require('../models/Service');
 const AppError = require('../errors/AppError');
 const { getPatient } = require('./patientService');
 const { isWithinWorkingHours, utcToLocalDateString } = require('../utils/availability');
+const notificationService = require('./notificationService');
 
 // ─── Active statuses (for overlap detection) ──────────────────────────────────
 
 const ACTIVE_STATUSES = ['scheduled', 'confirmed', 'completed'];
+
+async function scheduleReminderSafely(clinicId, appointment) {
+  try {
+    await notificationService.createAppointmentReminder(clinicId, appointment);
+  } catch (error) {
+    console.error(JSON.stringify({
+      level: 'error',
+      event: 'appointment.reminder_schedule_failed',
+      appointmentId: String(appointment._id),
+      errorName: error.name,
+      errorCode: error.code || null,
+    }));
+  }
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -154,6 +169,7 @@ async function createAppointment(clinicId, {
     );
 
     if (session) await session.commitTransaction();
+    await scheduleReminderSafely(clinicId, appointment);
     return appointment;
   } catch (err) {
     if (session && session.inTransaction()) await session.abortTransaction();
@@ -284,6 +300,7 @@ async function rescheduleAppointment(clinicId, appointmentId, { startAt: startAt
     await appt.save(saveOpts);
 
     if (session) await session.commitTransaction();
+    await scheduleReminderSafely(clinicId, appt);
     return appt;
   } catch (err) {
     if (session && session.inTransaction()) await session.abortTransaction();

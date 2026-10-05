@@ -2,6 +2,14 @@
 
 const { MongoMemoryReplSet } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
+const { setNotificationEnqueueAdapter } = require('../src/jobs/notificationQueue');
+
+global.__notificationJobs = new Map();
+setNotificationEnqueueAdapter(async (notification) => {
+  const id = String(notification._id || notification.id);
+  global.__notificationJobs.set(id, { id, scheduledAt: notification.scheduledAt });
+  return { id };
+});
 
 let mongod;
 
@@ -17,6 +25,7 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
+  global.__notificationJobs.clear();
   const collections = mongoose.connection.collections;
   for (const key in collections) {
     await collections[key].deleteMany({});
