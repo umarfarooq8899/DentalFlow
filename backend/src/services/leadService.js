@@ -135,7 +135,7 @@ async function listLeads(clinicId, opts = {}) {
   ]);
 
   return {
-    data: leads,
+    data: leads.map((l) => ({ ...l, id: l._id.toString() })),
     pagination: {
       total,
       page: safePage,

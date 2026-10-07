@@ -164,7 +164,7 @@ async function listMessages(clinicId, conversationId, opts = {}) {
   const lastId = messages.length > 0 ? messages[messages.length - 1]._id : null;
 
   return {
-    data: messages,
+    data: messages.map((m) => ({ ...m, id: m._id.toString() })),
     pagination: {
       total,
       page: safePage,

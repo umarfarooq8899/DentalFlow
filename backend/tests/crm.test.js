@@ -700,9 +700,9 @@ describe('TASK 8 — CRM: Messages', () => {
 
       // All 15 IDs across 3 pages must be unique
       const allIds = [
-        ...page1.body.data.map((m) => m.id),
-        ...page2.body.data.map((m) => m.id),
-        ...page3.body.data.map((m) => m.id),
+        ...page1.body.data.map((m) => m.id || m._id),
+        ...page2.body.data.map((m) => m.id || m._id),
+        ...page3.body.data.map((m) => m.id || m._id),
       ];
       expect(new Set(allIds).size).toBe(15);
     });

@@ -154,7 +154,7 @@ async function listConversations(clinicId, opts = {}) {
   ]);
 
   return {
-    data: conversations,
+    data: conversations.map((c) => ({ ...c, id: c._id.toString() })),
     pagination: {
       total,
       page: safePage,
