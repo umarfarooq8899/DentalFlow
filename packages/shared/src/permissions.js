@@ -54,6 +54,10 @@ const Permission = {
   CONVERSATIONS_READ: 'conversations:read',
   CONVERSATIONS_WRITE: 'conversations:write',
 
+  // AI Gateway & CRM AI
+  AI_GENERATE: 'ai:generate',
+  AI_REVIEW: 'ai:review',
+
   // Test / System
   TEST_RECORDS_READ: 'test_records:read',
   TEST_RECORDS_WRITE: 'test_records:write',
@@ -95,6 +99,8 @@ const ROLE_PERMISSIONS = {
     Permission.LEADS_MANAGE,
     Permission.CONVERSATIONS_READ,
     Permission.CONVERSATIONS_WRITE,
+    Permission.AI_GENERATE,
+    Permission.AI_REVIEW,
     Permission.TEST_RECORDS_READ,
     Permission.TEST_RECORDS_WRITE,
     Permission.TEST_RECORDS_DELETE,
@@ -116,6 +122,8 @@ const ROLE_PERMISSIONS = {
     Permission.STAFF_READ,
     Permission.LEADS_READ,
     Permission.CONVERSATIONS_READ,
+    Permission.AI_GENERATE,
+    Permission.AI_REVIEW,
     Permission.TEST_RECORDS_READ,
     Permission.TEST_RECORDS_WRITE,
   ],
@@ -145,6 +153,8 @@ const ROLE_PERMISSIONS = {
     Permission.LEADS_WRITE,
     Permission.CONVERSATIONS_READ,
     Permission.CONVERSATIONS_WRITE,
+    Permission.AI_GENERATE,
+    Permission.AI_REVIEW,
     Permission.TEST_RECORDS_READ,
     Permission.TEST_RECORDS_WRITE,
   ],

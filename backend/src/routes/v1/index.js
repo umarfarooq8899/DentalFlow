@@ -22,6 +22,7 @@ const notificationRoutes = require('./notificationRoutes');
 const recallRoutes = require('./recallRoutes');
 const leadRoutes = require('./leadRoutes');
 const conversationRoutes = require('./conversationRoutes');
+const aiRoutes = require('./aiRoutes');
 
 const router = Router();
 
@@ -42,6 +43,7 @@ router.use('/notifications', notificationRoutes);
 router.use('/recalls', recallRoutes);
 router.use('/leads', leadRoutes);
 router.use('/conversations', conversationRoutes);
+router.use('/ai', aiRoutes);
 router.use('/consents', consentRoutes);
 router.use('/documents', documentRoutes);
 router.use('/appointments', appointmentRoutes);
