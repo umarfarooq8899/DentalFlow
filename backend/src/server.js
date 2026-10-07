@@ -4,7 +4,7 @@ const app = require('./app');
 const env = require('./config/env');
 const { connectDatabase } = require('./config/database');
 const { createNotificationWorker } = require('./jobs/notificationWorker');
-const { closeQueues } = require('./jobs/notificationQueue');
+const { closeQueues, isRedisAvailable } = require('./jobs/notificationQueue');
 const notificationService = require('./services/notificationService');
 const recallService = require('./services/recallService');
 
@@ -14,24 +14,24 @@ async function start() {
   try {
     await connectDatabase();
     let notificationWorker = null;
-    try {
-      const worker = createNotificationWorker();
-      await Promise.race([
-        worker.waitUntilReady(),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Redis connection timed out (2s)')), 2000)
-        ),
-      ]);
-      notificationWorker = worker;
-      await notificationService.requeuePendingNotifications();
-      await notificationService.schedulePendingAppointmentReminders();
-      await recallService.scheduleActiveRecallNotifications();
-    } catch (queueErr) {
-      console.warn('[JOBS] Warning: Redis is not reachable. Background BullMQ workers paused until Redis is running.');
-      if (notificationWorker) {
-        await notificationWorker.close().catch(() => {});
-        notificationWorker = null;
+    const redisAvailable = await isRedisAvailable(1200);
+    if (redisAvailable) {
+      try {
+        notificationWorker = createNotificationWorker();
+        await notificationWorker.waitUntilReady();
+        await notificationService.requeuePendingNotifications();
+        await notificationService.schedulePendingAppointmentReminders();
+        await recallService.scheduleActiveRecallNotifications();
+        console.log('[JOBS] BullMQ notification worker initialized and ready.');
+      } catch (queueErr) {
+        console.warn('[JOBS] Warning: Redis worker initialization failed:', queueErr.message);
+        if (notificationWorker) {
+          await notificationWorker.close().catch(() => {});
+          notificationWorker = null;
+        }
       }
+    } else {
+      console.warn('[JOBS] Notice: Redis is not reachable. Background BullMQ workers disabled for this session.');
     }
 
     const server = app.listen(PORT, () => {

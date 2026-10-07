@@ -1,6 +1,7 @@
 'use strict';
 
 const { Queue } = require('bullmq');
+const IORedis = require('ioredis');
 const env = require('../config/env');
 
 const NOTIFICATION_QUEUE_NAME = 'dentalflow-notifications';
@@ -31,6 +32,49 @@ function redisConnectionOptions(redisUrl = env.REDIS_URL) {
   if (database) options.db = Number(database);
   if (parsed.protocol === 'rediss:') options.tls = {};
   return options;
+}
+
+/**
+ * Checks if Redis server is reachable without triggering unhandled error loops.
+ * @param {number} timeoutMs
+ * @returns {Promise<boolean>}
+ */
+async function isRedisAvailable(timeoutMs = 1200) {
+  return new Promise((resolve) => {
+    let client;
+    try {
+      const options = redisConnectionOptions();
+      client = new IORedis({
+        ...options,
+        lazyConnect: true,
+        maxRetriesPerRequest: 0,
+        enableOfflineQueue: false,
+        retryStrategy: () => null,
+      });
+
+      client.on('error', () => {});
+
+      const timer = setTimeout(() => {
+        try { client.disconnect(); } catch {}
+        resolve(false);
+      }, timeoutMs);
+
+      client.connect()
+        .then(() => client.ping())
+        .then(() => {
+          clearTimeout(timer);
+          try { client.disconnect(); } catch {}
+          resolve(true);
+        })
+        .catch(() => {
+          clearTimeout(timer);
+          try { client.disconnect(); } catch {}
+          resolve(false);
+        });
+    } catch {
+      resolve(false);
+    }
+  });
 }
 
 function getNotificationQueue() {
@@ -87,6 +131,7 @@ module.exports = {
   NOTIFICATION_QUEUE_NAME,
   NOTIFICATION_JOB_DEFAULTS,
   redisConnectionOptions,
+  isRedisAvailable,
   getNotificationQueue,
   getDeadLetterQueue,
   enqueueNotification,
